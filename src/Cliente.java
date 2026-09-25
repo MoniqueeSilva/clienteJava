@@ -1,6 +1,10 @@
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 public class Cliente {
     public static void main(String[] args) throws IOException {
@@ -8,13 +12,19 @@ public class Cliente {
         Socket clienteSocket = new Socket("localhost", 12345);
         System.out.println("CONECTADO AO SERVIDOR");
 
-        // 2. Scanner para ler a opção do teclado
-        Scanner teclado = new Scanner(System.in);
+        // 2. Canal para enviar mensagem ao servidor
+        PrintWriter saida = new PrintWriter(clienteSocket.getOutputStream(), true);
         
-        // 3. Variável de controle do loop do menu
+        // 3. Canal para receber mensagem do servidor
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
+
+        // 4. Scaner para ler a opção do teclado
+        Scanner teclado = new Scanner(System.in);
+
+        // 5. Variável de controle do loop do menu
         boolean executa = true;
 
-        // 4. Loop principal do menu
+        // 6. Loop principal do menu
         while (executa) {
             System.out.println("\nMENU: ");
             System.out.println("1 - Somar");
@@ -24,10 +34,10 @@ public class Cliente {
             System.out.println("0 - Encerrar conexão");
             System.out.print("ESCOLHA UMA OPÇÃO: ");
 
-            // 5. Lê a opção digitada
+            // 7. Lê a opção digitada
             String opcao = teclado.nextLine();
 
-            // 6. Estrutura de decisão (o equivalente ao "match" do Python)
+            // 8. Estrutura de decisão (o equivalente ao "match" do Python)
             switch (opcao) {
                 case "1":
                     System.out.println("Somar selecionado.");
@@ -50,8 +60,10 @@ public class Cliente {
             }
         }
 
-        // 7. Fechamento de recursos
+        // 9. Fechamento de recursos
         teclado.close();
+        entrada.close();
+        saida.close();
         clienteSocket.close();
         System.out.println("Conexão encerrada.");
     }
