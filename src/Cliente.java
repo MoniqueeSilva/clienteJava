@@ -41,20 +41,60 @@ public class Cliente {
             switch (opcao) {
                 case "1":
                     System.out.println("Somar selecionado.");
+                    System.out.print("Digite o primeiro número: ");
+                    String numero1Soma = teclado.nextLine();
+                    System.out.print("Digite o segundo número: ");
+                    String numero2Soma = teclado.nextLine();
+                    // Formato: CODIGO|NUM1,NUM2
+                    String mensagemSoma = "1|" + numero1Soma + "," + numero2Soma;
+                    // Envia para o servidor
+                    saida.println(mensagemSoma);
+                    // Recebe a resposta
+                    String respostaSoma = entrada.readLine();
+                    System.out.println("Servidor: " + respostaSoma);
                     break;
                 case "2":
-                    System.out.println("Subtrair selecionado.");
+                    System.out.println("Subtração selecionada.");
+                    System.out.print("Digite o primeiro número: ");
+                    String numero1Subtracao = teclado.nextLine();
+                    System.out.print("Digite o segundo número: ");
+                    String numero2Subtracao = teclado.nextLine();
+                    // Formato: CODIGO|NUM1,NUM2
+                    String mensagemSubtracao = "2|" + numero1Subtracao + "," + numero2Subtracao;
+                    // Envia para o servidor
+                    saida.println(mensagemSubtracao);
+                    // Recebe a resposta
+                    String respostaSubtracao = entrada.readLine();
+                    System.out.println("Servidor: " + respostaSubtracao);
                     break;
+
                 case "3":
-                    System.out.println("Multiplicar selecionado.");
+                    System.out.println("Multiplicação selecionada.");
+                    System.out.print("Digite o primeiro número: ");
+                    String numero1Multiplicacao = teclado.nextLine();
+                    System.out.print("Digite o segundo número: ");
+                    String numero2Multiplicacao = teclado.nextLine();
+                    // Formato: CODIGO|NUM1,NUM2
+                    String mensagemMultiplicacao = "3|" + numero1Multiplicacao + "," + numero2Multiplicacao;
+                    // Envia para o servidor
+                    saida.println(mensagemMultiplicacao);
+                    // Recebe a resposta
+                    String respostaMultiplicacao = entrada.readLine();
+                    System.out.println("Servidor: " + respostaMultiplicacao);
                     break;
+
                 case "4":
                     System.out.println("Envio de imagem selecionado.");
+                    // A implementação da imagem será feita posteriormente.
                     break;
+
                 case "0":
                     System.out.println("Encerrando conexão...");
-                    executa = false; // Muda a flag para sair do loop
+                    // Envia o código de encerramento para o servidor
+                    saida.println("0");
+                    executa = false;
                     break;
+
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
             }
