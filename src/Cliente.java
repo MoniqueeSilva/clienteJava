@@ -85,7 +85,9 @@ public class Cliente {
 
                 case "4":
                     System.out.println("Envio de imagem selecionado.");
-                    // A implementação da imagem será feita posteriormente.
+                    saida.println("4|");
+                    String respostaImagem = entrada.readLine();
+                    System.out.println("Servidor: " + respostaImagem);
                     break;
 
                 case "0":
