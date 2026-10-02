@@ -2,25 +2,33 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 public class Cliente {
     public static void main(String[] args) throws IOException {
-        // 1. Conexão com o servidor (mantida igual)
+        // 1. Conexão com o servidor
         Socket clienteSocket = new Socket("localhost", 12345);
-        System.out.println("CONECTADO AO SERVIDOR");
 
         // 2. Canal para enviar mensagem ao servidor
         PrintWriter saida = new PrintWriter(clienteSocket.getOutputStream(), true);
-        
+
         // 3. Canal para receber mensagem do servidor
         BufferedReader entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
 
-        // 4. Scaner para ler a opção do teclado
-        Scanner teclado = new Scanner(System.in);
+        // 4. NOVO: lê a mensagem de boas-vindas do servidor
+        String mensagemInicial = entrada.readLine();
+        if (mensagemInicial.startsWith("ERRO")) {
+            System.out.println(mensagemInicial);
+            clienteSocket.close();
+            return;
+        }
 
+        // 5. Agora sim, imprime que conectou
+        System.out.println("CONECTADO AO SERVIDOR");
+
+        // 6. Scanner para ler o teclado
+        Scanner teclado = new Scanner(System.in);
         // 5. Variável de controle do loop do menu
         boolean executa = true;
 
