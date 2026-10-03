@@ -7,25 +7,52 @@ import java.io.PrintWriter;
 
 public class Cliente {
     public static void main(String[] args) throws IOException {
-        // 1. Conexão com o servidor
-        Socket clienteSocket = new Socket("localhost", 12345);
+    final int MAX_TENTATIVAS = 30;
+    final int INTERVALO_ESPERA = 2; // segundos
 
-        // 2. Canal para enviar mensagem ao servidor
-        PrintWriter saida = new PrintWriter(clienteSocket.getOutputStream(), true);
+    Socket clienteSocket = null;
+    BufferedReader entrada = null;
+    PrintWriter saida = null;
 
-        // 3. Canal para receber mensagem do servidor
-        BufferedReader entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
+    // Loop de tentativas de conexão
+    for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+        try {
+            clienteSocket = new Socket("localhost", 12345);
+            entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
+            saida = new PrintWriter(clienteSocket.getOutputStream(), true);
 
-        // 4. NOVO: lê a mensagem de boas-vindas do servidor
-        String mensagemInicial = entrada.readLine();
-        if (mensagemInicial.startsWith("ERRO")) {
-            System.out.println(mensagemInicial);
+            String mensagemInicial = entrada.readLine();
+
+            if (mensagemInicial != null && mensagemInicial.startsWith("OK")) {
+                System.out.println("CONECTADO AO SERVIDOR");
+                break;
+            }
+
+            // Servidor cheio — aguarda e tenta de novo
+            System.out.println("[Tentativa " + tentativa + "/" + MAX_TENTATIVAS + "] Servidor cheio. Aguardando " + INTERVALO_ESPERA + "s...");
             clienteSocket.close();
-            return;
+            clienteSocket = null;
+
+        } catch (IOException e) {
+            System.out.println("[Tentativa " + tentativa + "/" + MAX_TENTATIVAS + "] Servidor indisponível. Aguardando " + INTERVALO_ESPERA + "s...");
         }
 
-        // 5. Agora sim, imprime que conectou
-        System.out.println("CONECTADO AO SERVIDOR");
+        // Se esgotou as tentativas, não dorme — sai do loop e encerra
+        if (tentativa == MAX_TENTATIVAS) break;
+
+        try {
+            Thread.sleep(INTERVALO_ESPERA * 1000L);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            if (clienteSocket != null) clienteSocket.close();
+            return;
+        }
+    }
+
+    if (clienteSocket == null) {
+        System.out.println("Não foi possível conectar após várias tentativas. Encerrando.");
+        return;
+    }
 
         // 6. Scanner para ler o teclado
         Scanner teclado = new Scanner(System.in);
