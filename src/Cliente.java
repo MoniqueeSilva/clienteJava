@@ -4,55 +4,63 @@ import java.util.Scanner;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.Base64;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.File;
 
 public class Cliente {
     public static void main(String[] args) throws IOException {
-    final int MAX_TENTATIVAS = 30;
-    final int INTERVALO_ESPERA = 2; // segundos
+        final int MAX_TENTATIVAS = 30;
+        final int INTERVALO_ESPERA = 2; // segundos
 
-    Socket clienteSocket = null;
-    BufferedReader entrada = null;
-    PrintWriter saida = null;
+        Socket clienteSocket = null;
+        BufferedReader entrada = null;
+        PrintWriter saida = null;
 
-    // Loop de tentativas de conexão
-    for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
-        try {
-            clienteSocket = new Socket("localhost", 12345);
-            entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
-            saida = new PrintWriter(clienteSocket.getOutputStream(), true);
+        // Loop de tentativas de conexão
+        for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+            try {
+                clienteSocket = new Socket("localhost", 12345);
+                entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
+                saida = new PrintWriter(clienteSocket.getOutputStream(), true);
 
-            String mensagemInicial = entrada.readLine();
+                String mensagemInicial = entrada.readLine();
 
-            if (mensagemInicial != null && mensagemInicial.startsWith("OK")) {
-                System.out.println("CONECTADO AO SERVIDOR");
-                break;
+                if (mensagemInicial != null && mensagemInicial.startsWith("OK")) {
+                    System.out.println("CONECTADO AO SERVIDOR");
+                    break;
+                }
+
+                // Servidor cheio — aguarda e tenta de novo
+                System.out.println("[Tentativa " + tentativa + "/" + MAX_TENTATIVAS + "] Servidor cheio. Aguardando "
+                        + INTERVALO_ESPERA + "s...");
+                clienteSocket.close();
+                clienteSocket = null;
+
+            } catch (IOException e) {
+                System.out.println("[Tentativa " + tentativa + "/" + MAX_TENTATIVAS
+                        + "] Servidor indisponível. Aguardando " + INTERVALO_ESPERA + "s...");
             }
 
-            // Servidor cheio — aguarda e tenta de novo
-            System.out.println("[Tentativa " + tentativa + "/" + MAX_TENTATIVAS + "] Servidor cheio. Aguardando " + INTERVALO_ESPERA + "s...");
-            clienteSocket.close();
-            clienteSocket = null;
+            // Se esgotou as tentativas, não dorme — sai do loop e encerra
+            if (tentativa == MAX_TENTATIVAS)
+                break;
 
-        } catch (IOException e) {
-            System.out.println("[Tentativa " + tentativa + "/" + MAX_TENTATIVAS + "] Servidor indisponível. Aguardando " + INTERVALO_ESPERA + "s...");
+            try {
+                Thread.sleep(INTERVALO_ESPERA * 1000L);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                if (clienteSocket != null)
+                    clienteSocket.close();
+                return;
+            }
         }
 
-        // Se esgotou as tentativas, não dorme — sai do loop e encerra
-        if (tentativa == MAX_TENTATIVAS) break;
-
-        try {
-            Thread.sleep(INTERVALO_ESPERA * 1000L);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
-            if (clienteSocket != null) clienteSocket.close();
+        if (clienteSocket == null) {
+            System.out.println("Não foi possível conectar após várias tentativas. Encerrando.");
             return;
         }
-    }
-
-    if (clienteSocket == null) {
-        System.out.println("Não foi possível conectar após várias tentativas. Encerrando.");
-        return;
-    }
 
         // 6. Scanner para ler o teclado
         Scanner teclado = new Scanner(System.in);
@@ -122,7 +130,39 @@ public class Cliente {
                     System.out.println("Envio de imagem selecionado.");
                     saida.println("4|");
                     String respostaImagem = entrada.readLine();
-                    System.out.println("Servidor: " + respostaImagem);
+
+                    if (respostaImagem != null && respostaImagem.startsWith("IMAGEM|")) {
+                        String imagemBase64 = respostaImagem.substring("IMAGEM|".length());
+                        System.out.println("Imagem recebida em Base64.");
+                        System.out.println("Tamanho do Base64: " + imagemBase64.length() + " caracteres");
+
+                        try {
+                            byte[] imagemBytes = Base64.getDecoder().decode(imagemBase64);
+                            String caminhoImagem = "imagem_recebida.jpg";
+                            Files.write(Paths.get(caminhoImagem), imagemBytes);
+
+                            File arquivo = new File(caminhoImagem);
+                            System.out.println("Imagem salva em: " + arquivo.getAbsolutePath());
+
+                            // Abre a imagem no Google Chrome (mesma abordagem do cliente Python)
+                            try {
+                                Runtime.getRuntime().exec(new String[] { "google-chrome", arquivo.getAbsolutePath() });
+                                System.out.println("Imagem aberta no Google Chrome.");
+                            } catch (IOException e) {
+                                // Fallback: tenta o visualizador padrão do sistema
+                                Runtime.getRuntime().exec(new String[] { "xdg-open", arquivo.getAbsolutePath() });
+                                System.out.println("Imagem aberta no visualizador padrão.");
+                            }
+
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Erro: o conteúdo recebido não é um Base64 válido.");
+                        } catch (IOException e) {
+                            System.out.println("Erro ao salvar ou abrir a imagem: " + e.getMessage());
+                        }
+
+                    } else {
+                        System.out.println("Servidor: " + respostaImagem);
+                    }
                     break;
 
                 case "0":
