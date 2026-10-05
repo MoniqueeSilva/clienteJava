@@ -23,13 +23,8 @@ public class Imagem {
             File arquivo = new File(caminhoImagem);
             System.out.println("Imagem salva em: " + arquivo.getAbsolutePath());
 
-            try {
-                Runtime.getRuntime().exec(new String[] { "google-chrome", arquivo.getAbsolutePath() });
-                System.out.println("Imagem aberta no Google Chrome.");
-            } catch (IOException e) {
-                Runtime.getRuntime().exec(new String[] { "xdg-open", arquivo.getAbsolutePath() });
-                System.out.println("Imagem aberta no visualizador padrão.");
-            }
+            Runtime.getRuntime().exec(new String[] { "google-chrome", arquivo.getAbsolutePath() });
+            System.out.println("Imagem aberta no Chrome.");
 
         } catch (IllegalArgumentException e) {
             System.out.println("Erro: o conteúdo recebido não é um Base64 válido.");
