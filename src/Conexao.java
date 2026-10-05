@@ -9,10 +9,11 @@ public class Conexao {
     private static final int INTERVALO_ESPERA = 2;
 
     public static String receberMensagem(BufferedReader entrada) throws IOException {
-        return entrada.readLine();
+        return entrada.readLine(); // Lê até '\n'
     }
 
     public static ConexaoServidor conectarAoServidor() throws IOException {
+        // variáveis sobreviventes entre tentativas
         Socket clienteSocket = null;
         BufferedReader entrada = null;
         PrintWriter saida = null;
@@ -20,8 +21,8 @@ public class Conexao {
         for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
             try {
                 clienteSocket = new Socket("localhost", 12345);
-                entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
-                saida = new PrintWriter(clienteSocket.getOutputStream(), true);
+                entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream())); // Cria BufferedReader envolvendo o InputStream do socket
+                saida = new PrintWriter(clienteSocket.getOutputStream(), true); // Cria PrintWriter com autoFlush=true (envia a cada println)
 
                 String mensagemInicial = receberMensagem(entrada);
 
@@ -43,10 +44,11 @@ public class Conexao {
             if (tentativa == MAX_TENTATIVAS)
                 break;
 
+            // Pausa antes da próxima tentativa
             try {
                 Thread.sleep(INTERVALO_ESPERA * 1000L);
             } catch (InterruptedException ie) {
-                Thread.currentThread().interrupt();
+                Thread.currentThread().interrupt(); // Se a thread foi interrompida, restaura o estado de interrupção
                 if (clienteSocket != null)
                     clienteSocket.close();
                 return null;
@@ -57,9 +59,10 @@ public class Conexao {
             return null;
         }
 
-        return new ConexaoServidor(clienteSocket, entrada, saida);
+        return new ConexaoServidor(clienteSocket, entrada, saida); // Conexão pronta
     }
 
+    // Agrupa os 3 recursos da conexão
     public record ConexaoServidor(Socket socket, BufferedReader entrada, PrintWriter saida) {
     }
 }

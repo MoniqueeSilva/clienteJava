@@ -5,6 +5,7 @@ import java.net.Socket;
 
 public class Cliente {
     public static void main(String[] args) throws IOException {
+        // Chama a classe Conexao para conectar ao servidor
         Conexao.ConexaoServidor conexao = Conexao.conectarAoServidor();
 
         if (conexao == null) {
@@ -13,13 +14,13 @@ public class Cliente {
         }
 
         Socket clienteSocket = conexao.socket();
-        BufferedReader entrada = conexao.entrada();
-        PrintWriter saida = conexao.saida();
+        BufferedReader entrada = conexao.entrada(); // Ler mensagem do servidor
+        PrintWriter saida = conexao.saida(); // Escrever mensagem ao servidor 
 
         boolean executa = true;
         while (executa) {
             String opcao = Menu.mostrarMenu();
-            String mensagem = Menu.criarMensagem(opcao);
+            String mensagem = Menu.criarMensagem(opcao); // Converte a opção numa mensagem de protocolo
 
             if (mensagem == null) {
                 continue;
