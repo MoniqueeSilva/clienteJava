@@ -20,7 +20,7 @@ public class Conexao {
 
         for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
             try {
-                clienteSocket = new Socket("localhost", 12345);
+                clienteSocket = new Socket("10.10.136.139", 12346);
                 entrada = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream())); // Cria BufferedReader envolvendo o InputStream do socket
                 saida = new PrintWriter(clienteSocket.getOutputStream(), true); // Cria PrintWriter com autoFlush=true (envia a cada println)
 

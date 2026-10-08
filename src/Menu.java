@@ -28,6 +28,15 @@ public class Menu {
             case "4":
                 System.out.println("Envio de imagem selecionado.");
                 return "4|";
+            case "5":
+                System.out.println("Envio do objeto");
+                Aluno a1 = new Aluno();
+                a1.curso = "TSI";
+                a1.nome = "ze";
+                a1.matricula = "123";
+                a1.serializaUmAluno();
+                return "5|";
+            
             case "0":
                 System.out.println("Encerrando conexão...");
                 return "0|";
