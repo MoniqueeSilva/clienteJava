@@ -15,17 +15,27 @@ public class Cliente {
 
         Socket clienteSocket = conexao.socket();
         BufferedReader entrada = conexao.entrada(); // Ler mensagem do servidor
-        PrintWriter saida = conexao.saida(); // Escrever mensagem ao servidor 
+        PrintWriter saida = conexao.saida(); // Escrever mensagem ao servidor
 
         boolean executa = true;
         while (executa) {
             String opcao = Menu.mostrarMenu();
-            String mensagem = Menu.criarMensagem(opcao); // Converte a opção numa mensagem de protocolo
+            String mensagem = Menu.criarMensagem(opcao);
 
             if (mensagem == null) {
                 continue;
             }
 
+            // Opção 5 tem fluxo próprio: envia cabeçalho + bytes direto
+            if (opcao.equals("5")) {
+                Aluno aluno = Menu.criarAluno();
+                aluno.serializaUmAluno(clienteSocket.getOutputStream());
+                String resposta = Conexao.receberMensagem(entrada);
+                System.out.println("Servidor: " + resposta);
+                continue;
+            }
+
+            // Demais opções usam o canal de texto normal
             saida.println(mensagem);
 
             if (opcao.equals("0")) {

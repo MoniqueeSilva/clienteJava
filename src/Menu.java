@@ -9,6 +9,7 @@ public class Menu {
         System.out.println("2 - Subtrair");
         System.out.println("3 - Multiplicar");
         System.out.println("4 - Enviar Imagem");
+        System.out.println("5 - Enviar Objeto");
         System.out.println("0 - Encerrar conexão");
         System.out.print("ESCOLHA UMA OPÇÃO: ");
         return teclado.nextLine();
@@ -29,14 +30,8 @@ public class Menu {
                 System.out.println("Envio de imagem selecionado.");
                 return "4|";
             case "5":
-                System.out.println("Envio do objeto");
-                Aluno a1 = new Aluno();
-                a1.curso = "TSI";
-                a1.nome = "ze";
-                a1.matricula = "123";
-                a1.serializaUmAluno();
+                System.out.println("Envio de objeto selecionado.");
                 return "5|";
-            
             case "0":
                 System.out.println("Encerrando conexão...");
                 return "0|";
@@ -52,5 +47,15 @@ public class Menu {
         System.out.print("Digite o segundo número: ");
         String numero2 = teclado.nextLine();
         return codigo + "|" + numero1 + "," + numero2;
+    }
+
+    public static Aluno criarAluno() {
+        System.out.print("Nome do aluno: ");
+        String nome = teclado.nextLine();
+        System.out.print("Matrícula: ");
+        String matricula = teclado.nextLine();
+        System.out.print("Curso: ");
+        String curso = teclado.nextLine();
+        return new Aluno(nome, matricula, curso);
     }
 }
